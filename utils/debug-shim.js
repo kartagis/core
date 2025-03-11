@@ -1,3 +1,10 @@
+/**
+ * @module debug-shim
+ * @description A shim that provides compatibility between Lando v3 and v4 debugging functionality.
+ * This module wraps the debug package to provide consistent logging behavior and additional
+ * functionality required by Lando's debugging system.
+ */
+
 'use strict';
 
 const _debug = require('debug');

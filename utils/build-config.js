@@ -4,10 +4,16 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
-/*
- * Converts landofile things into a configsource
+/**
+ * Converts a Landofile configuration into a standardized config source format
+ *
+ * @param {Object} config - The raw Landofile configuration object
+ * @param {Array<string>} [config.plugins] - List of Lando plugins to load
+ * @param {Array<string>} [config.pluginDirs] - List of directories containing Lando plugins
+ * @param {Array<string>} config.configFiles - List of configuration files, first one is used as source
+ * @return {Object} Formatted config source object with data and file information
  */
-const parseLandofileConfig = (config = {}) => ({
+const parseLandofileConfig = (config = {configFiles: []}) => ({
   data: _.pickBy(config, (value, key) => {
     return _.includes(['plugins', 'pluginDirs'], key) && !_.isEmpty(value);
   }),
@@ -15,6 +21,35 @@ const parseLandofileConfig = (config = {}) => ({
   landoFile: true,
 });
 
+/**
+ * Builds the complete Lando configuration by merging various config sources
+ *
+ * This function combines multiple configuration sources in the following order:
+ * 1. Default configuration
+ * 2. CLI options
+ * 3. Core config.yml
+ * 4. Landofile configuration
+ * 5. Environment variables
+ * 6. Plugin configurations
+ *
+ * It also handles special cases for:
+ * - Docker and Docker Compose environment variables
+ * - Orchestrator configuration (Docker Compose)
+ * - Platform-specific adjustments (Windows)
+ * - Hyperdrive integration
+ *
+ * @param {Object} options - CLI options and initial configuration
+ * @param {string} [options.envPrefix] - Prefix for environment variables to load
+ * @param {string} [options.userConfRoot] - Root directory for user configuration
+ * @param {Object} [options.landoFileConfig] - Configuration from Landofile
+ * @param {string} [options.composeBin] - Path to Docker Compose binary
+ * @param {string} [options.orchestratorBin] - Path to orchestrator binary
+ * @param {string} [options.orchestratorVersion] - Version of orchestrator to use
+ * @param {string} [options.orchestratorSeparator] - Separator character for orchestrator commands
+ * @param {Object} [options.setup] - Setup configuration options
+ *
+ * @return {Object} Complete Lando configuration object with all settings merged and computed properties
+ */
 module.exports = options => {
   // Modules
   const hasher = require('object-hash');
@@ -54,7 +89,7 @@ module.exports = options => {
   }
 
   // special handling for LANDO_PLUGIN_CONFIG
-  if (_.keys(config, 'envPrefix')) {
+  if (_.has(config, 'envPrefix')) {
     config = lmerge(config, require('../utils/load-env-plugin-config')(config.envPrefix));
   }
 

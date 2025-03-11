@@ -7,6 +7,21 @@ const os = require('os');
 const path = require('path');
 const remove = require('./remove');
 
+/**
+ * Copies configuration files from a source directory to a destination directory,
+ * excluding .js files and making .sh files executable.
+ *
+ * @param {string} src - Source directory path containing config files to copy
+ * @param {string} [dest=os.tmpdir()] - Destination directory path. Defaults to system temp dir
+ * @return {string} Path to the destination directory where files were copied
+ * @throws {Error} If copying files fails and cannot be recovered
+ *
+ * @example
+ * // Copy config files from a plugin's scripts directory to the user's scripts directory
+ * const userScriptsDir = path.join(lando.config.userConfRoot, 'scripts');
+ * const configDir = moveConfig(path.join(__dirname, '../scripts'), userScriptsDir);
+ * console.log('Config files moved to:', configDir);
+ */
 module.exports = (src, dest = os.tmpdir()) => {
   // Copy opts and filter out all js files
   // We don't want to give the false impression that you can edit the JS

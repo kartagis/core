@@ -2,6 +2,25 @@
 
 const path = require('path');
 
+/**
+ * Converts Docker container labels to a Lando container object.
+ *
+ * @typedef {Object} LandoContainer
+ * @property {string} id - The container ID.
+ * @property {string} service - The service name.
+ * @property {string} name - The container name.
+ * @property {string} app - The application name.
+ * @property {string} kind - The kind of container.
+ * @property {boolean} lando - Indicates if the container is a Lando container.
+ * @property {string} instance - The instance ID.
+ * @property {string} status - The container status.
+ * @property {(Array|String)} src - Source paths or a single source path.
+ *
+ * @param {{Labels, Id, Status}} containerInfo - Container information.
+ * @param {string} [separator='_'] - Separator to use for joining container name parts.
+ * @param {(Array|String)} [src=[]] - Source paths or a single source path.
+ * @return {LandoContainer} - The Lando container object.
+ */
 module.exports = ({Labels, Id, Status}, separator = '_', src = []) => {
   // Get name of docker container.
   const app = Labels['com.docker.compose.project'];
